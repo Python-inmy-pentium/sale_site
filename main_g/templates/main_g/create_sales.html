@@ -1,0 +1,92 @@
+{% extends "main_g/inv_list.html" %}
+{% block title %} Create Sales{% endblock %}
+{% block content %}
+<h1>SALES for Recording</h1>
+<h2>Record a Sale</h2>
+
+<div class="sales-container">
+    <!-- Form Section -->
+    <div class="form-section">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Save</button>
+            {% if messages %}
+              {% for message in messages %}
+                <div class="alert alert-success">{{ message }}</div>
+              {% endfor %}
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Table Section -->
+    <div class="table-section">
+        <table>
+            <tr>
+                <th>ID No.</th>
+                <th>Item</th>
+                <th>Quantity Sold</th>
+                <th>Total Amount</th>
+                <th>Date</th>
+            </tr>
+            {% if sales %}
+                {% for sale in sales %}
+                    <tr>
+                        <td>{{ sale.sale_id }}</td>
+                        <td>{{ sale.item.name }}</td>
+                        <td>{{ sale.quantity_sold }}</td>
+                        <td>{{ sale.total_sale_amount }}</td>
+                        <td>{{ sale.sale_date }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="5">No Items found</td></tr>
+                {% endfor %}
+            {% endif %}
+        </table>
+    </div>
+</div>
+<a href="/">Back</a>|<a href="/recsite/sales">Sales Record</a>
+
+<style>
+.sales-container {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    flex-wrap: wrap; /* allows wrapping on smaller screens */
+}
+
+/* Each section takes full width on mobile */
+.form-section, .table-section {
+    flex: 1 1 100%;
+}
+
+/* Optional: limit width on larger screens */
+@media (min-width: 768px) {
+    .form-section {
+        flex: 1;
+    }
+    .table-section {
+        flex: 2;
+    }
+}
+
+.table-section {
+    overflow-x: auto;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    border: 1px solid #333;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+th {
+    background-color: #ffcc80;
+}
+</style>
+{% endblock %}

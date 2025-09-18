@@ -1,0 +1,10 @@
+{% extends "main_g/inv_list.html" %}
+{% block title %} Add new Inventory {% endblock %}
+{% block content %}
+<form method="post">
+  {% csrf_token %}
+  <h2>Create Inventory</h2>
+  {{form}}
+  <button type="submit" class="btn btn success">Add</button>
+</form>
+{% endblock %}
