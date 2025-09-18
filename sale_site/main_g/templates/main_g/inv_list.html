@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %} Inventory List {% endblock %}</title>
+    <style>
+        body {
+            background-color: orange;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;   /* horizontal center */
+            align-items: center;       /* vertical center */
+            min-height: 100vh;          /* full viewport height */
+        }
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 8px;
+        }
+        table {
+            margin: 1rem auto;
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 500px;
+        }
+        th, td {
+            border: 1px solid #333;
+            padding: 8px 12px;
+        }
+        th {
+            background-color: #ffcc80;
+        }
+        a {
+            color: #0b1d3a;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+{% block content %}
+    <h1>Inventory List</h1>
+    <a href="/">Back</a>
+    <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th></th>
+        </tr>
+        </thead>
+        {% if inventory %}
+            {% for inv in inventory %}
+                <tr>
+                    <td>{{ inv.name }}</td>
+                    <td>{{ inv.price }}</td>
+                    <td>{{ inv.quantity }}</td>
+                    <td><a href="{% url 'delete' inv.pk %}">Delete</a></td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="4">No Items found</td></tr>
+            {% endfor %}
+        {% endif %}
+    </table>
+    <a href="create/">Add</a>
+{% endblock %}
+</div>
+</body>
+</html>
