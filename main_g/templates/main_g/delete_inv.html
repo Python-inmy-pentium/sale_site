@@ -1,0 +1,10 @@
+{% extends "main_g/inv_list.html" %}
+{% block title %} Remove Inventory{% endblock %}
+{% block content %}
+<form method="post" action="">
+  {% csrf_token %}
+  <h2>Inventory Deleted</h2>
+  {{form}}
+  <button type="submit" class="btn btn-success">Done</button>
+</form>
+{% endblock %}

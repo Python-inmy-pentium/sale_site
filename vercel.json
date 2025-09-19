@@ -2,14 +2,16 @@
     "builds": [{
         "src": "sale_site/wsgi.py",
         "use": "@vercel/python",
-        "config": { "maxLambdaSize": "15mb", "runtime": "python3.9" }
+        "config": { "maxLambdaSize": "15mb", "runtime": "python3.11" }
     }],
     "routes": [
         {
             "src": "/(.*)",
             "dest": "sale_site/wsgi.py"
+        },
+        {
+            "src": "/static/(.*)",
+            "dest": "staticfiles/$1"
         }
     ]
-
 }
-
