@@ -1,3 +1,9 @@
+from pathlib import Path
+import environ
+import dj_database_url
+import os
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 """
 Django settings for sale_site project.
 
@@ -10,9 +16,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-from pathlib import Path
-import environ
-import os
 
 # Initialise environment variables
 env = environ.Env()
@@ -89,8 +92,6 @@ WSGI_APPLICATION = 'sale_site.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-import dj_database_url
-import os
 
 DATABASES = {
     'default': dj_database_url.config(default=os.environ.get('postgresql://postgres.wfiyneyngszddkydfpto:like_my_balls25@aws-1-eu-north-1.pooler.supabase.com:6543/postgres'))
@@ -144,4 +145,5 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = 'home'
+
 LOGOUT_REDIRECT_URL = '/'
