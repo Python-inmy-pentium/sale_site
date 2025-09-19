@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8"/>
@@ -86,7 +87,6 @@
         }
     </style>
 </head>
-{% load static %}
 <body class="{% if user.is_authenticated %}auth-body{% else %}unauth-body{% endif %}">
 {% block content %}
     {% if user.is_authenticated %}
@@ -107,4 +107,5 @@
     {% endif %}
 {% endblock %}
 </body>
+
 </html>
