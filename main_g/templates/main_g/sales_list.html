@@ -96,7 +96,7 @@
 
 <script>
   function openModal(period) {
-    const baseUrl = "/export/" + period + "/";
+    const baseUrl = "/recsite/export/" + period + "/";
     document.getElementById('excelLink').href = baseUrl + '?format=excel';
     document.getElementById('pdfLink').href = baseUrl + '?format=pdf';
     document.getElementById('formatModal').style.display = 'block';
@@ -108,4 +108,5 @@
 </script>
 {% endblock %}
 </body>
+
 
