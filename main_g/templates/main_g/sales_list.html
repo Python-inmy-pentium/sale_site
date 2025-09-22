@@ -1,6 +1,7 @@
 {% extends "main_g/inv_list.html" %}
 {% block title %} Sales Record {% endblock %}
-<style>
+{% block style %}
+  <style>
   .download-btn {
   padding: 12px 20px;
   background-color: #011638;
@@ -50,6 +51,7 @@
   cursor: pointer;
 }
 </style>
+{% endblock %}
 <body>
 {% block content %}
 <h1>Sales Records</h1>
@@ -108,5 +110,6 @@
 </script>
 {% endblock %}
 </body>
+
 
 
