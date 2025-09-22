@@ -1,5 +1,67 @@
 {% extends "main_g/inv_list.html" %}
 {% block title %} Sales Record {% endblock %}
+<script>
+  function openModal(period) {
+    const baseUrl = "{% url 'export_sales' period='__PERIOD__' %}".replace('__PERIOD__', period);
+    document.getElementById('excelLink').href = baseUrl + '?format=excel';
+    document.getElementById('pdfLink').href = baseUrl + '?format=pdf';
+    document.getElementById('formatModal').style.display = 'block';
+  }
+
+  function closeModal() {
+    document.getElementById('formatModal').style.display = 'none';
+  }
+</script>
+<style>
+  .download-btn {
+  padding: 12px 20px;
+  background-color: #011638;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 10px;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.6);
+}
+
+.modal-content {
+  background-color: white;
+  margin: 15% auto;
+  padding: 20px;
+  width: 80%;
+  max-width: 300px;
+  text-align: center;
+  border-radius: 8px;
+}
+
+.format-link {
+  display: block;
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #011638;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+.close-btn {
+  margin-top: 10px;
+  background-color: #ccc;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+</style>
 <body>
 {% block content %}
 <h1>Sales Records</h1>
@@ -27,13 +89,21 @@
     </tr>
   </tbody>
 </table>
-<a href="{% url 'export_sales' 'day' %}">Export Today's Sales</a>
-<br>
-<a href="{% url 'export_sales' 'week' %}">Export This Week's Sales</a>
-<br>
-<a href="{% url 'export_sales' 'month' %}">Export This Month's Sales</a>
-<hr>
+<!-- Download Buttons -->
+<button onclick="openModal('day')" class="download-btn">Download Today's Sales</button>
+<button onclick="openModal('week')" class="download-btn">Download This Week's Sales</button>
+<button onclick="openModal('month')" class="download-btn">Download This Month's Sales</button>
 
+<!-- Modal Popup -->
+<div id="formatModal" class="modal">
+  <div class="modal-content">
+    <h3>Select Format</h3>
+    <a id="excelLink" class="format-link">Excel (.xlsx)</a>
+    <a id="pdfLink" class="format-link">PDF (.pdf)</a>
+    <button onclick="closeModal()" class="close-btn">Cancel</button>
+  </div>
+</div>
+<hr>
 <a href="/">Back</a>|<a href="new/">Record Sales</a>
 {% endblock %}
 </body>
