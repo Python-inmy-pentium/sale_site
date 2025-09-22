@@ -1,17 +1,5 @@
 {% extends "main_g/inv_list.html" %}
 {% block title %} Sales Record {% endblock %}
-<script>
-  function openModal(period) {
-    const baseUrl = "{% url 'export_sales' period='__PERIOD__' %}".replace('__PERIOD__', period);
-    document.getElementById('excelLink').href = baseUrl + '?format=excel';
-    document.getElementById('pdfLink').href = baseUrl + '?format=pdf';
-    document.getElementById('formatModal').style.display = 'block';
-  }
-
-  function closeModal() {
-    document.getElementById('formatModal').style.display = 'none';
-  }
-</script>
 <style>
   .download-btn {
   padding: 12px 20px;
@@ -105,5 +93,19 @@
 </div>
 <hr>
 <a href="/">Back</a>|<a href="new/">Record Sales</a>
+
+<script>
+  function openModal(period) {
+    const baseUrl = "/export/" + period + "/";
+    document.getElementById('excelLink').href = baseUrl + '?format=excel';
+    document.getElementById('pdfLink').href = baseUrl + '?format=pdf';
+    document.getElementById('formatModal').style.display = 'block';
+  }
+
+  function closeModal() {
+    document.getElementById('formatModal').style.display = 'none';
+  }
+</script>
 {% endblock %}
 </body>
+
