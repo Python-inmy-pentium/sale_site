@@ -164,28 +164,28 @@ def export_sales(request, period):
                     float(sale.total_sale_amount())
                 ])
             subtotal_row = ws.max_row + 1
-            ws[f"C{subtotal_row}"] = "Subtotal"
-            ws[f"C{subtotal_row}"].font = Font(bold=True)
+            ws[f"D{subtotal_row}"] = "Subtotal"
+            ws[f"D{subtotal_row}"].font = Font(bold=True)
             sub_total = 0
             for row in ws.iter_rows(min_row=day_start_row, max_row=subtotal_row - 1, min_col=6, max_col=6):
                 for cell in row:
                     if isinstance(cell.value, (int, float)):
                         sub_total += cell.value
 
-            ws[f"F{subtotal_row}"] = sub_total
-            ws[f"F{subtotal_row}"].font = Font(bold=True)
+            ws[f"G{subtotal_row}"] = sub_total
+            ws[f"G{subtotal_row}"].font = Font(bold=True)
 
         final_row = ws.max_row + 1
-        ws[f"C{final_row}"] = "TOTAL"
-        ws[f"C{final_row}"].font = Font(bold=True)
+        ws[f"E{final_row}"] = "TOTAL"
+        ws[f"E{final_row}"].font = Font(bold=True)
         total = 0
         for row in ws.iter_rows(min_row=2, max_row=final_row - 1, min_col=6, max_col=6):
             for cell in row:
                 if isinstance(cell.value, (int, float)):
                     total += cell.value
 
-        ws[f"F{final_row}"] = total
-        ws[f"F{final_row}"].font = Font(bold=True)
+        ws[f"G{final_row}"] = total
+        ws[f"G{final_row}"].font = Font(bold=True)
 
     elif period == 'month':
         start_of_month = today.replace(day=1)
@@ -210,28 +210,28 @@ def export_sales(request, period):
                         float(sale.total_sale_amount())
                     ])
                 subtotal_row = ws.max_row + 1
-                ws[f"C{subtotal_row}"] = "Subtotal"
-                ws[f"C{subtotal_row}"].font = Font(bold=True)
+                ws[f"D{subtotal_row}"] = "Subtotal"
+                ws[f"D{subtotal_row}"].font = Font(bold=True)
                 sub_total = 0
                 for row in ws.iter_rows(min_row=day_start_row, max_row=subtotal_row - 1, min_col=6, max_col=6):
                     for cell in row:
                         if isinstance(cell.value, (int, float)):
                             sub_total += cell.value
 
-                ws[f"F{subtotal_row}"] = sub_total
-                ws[f"F{subtotal_row}"].font = Font(bold=True)
+                ws[f"G{subtotal_row}"] = sub_total
+                ws[f"G{subtotal_row}"].font = Font(bold=True)
 
             final_row = ws.max_row + 1
-            ws[f"C{final_row}"] = "TOTAL"
-            ws[f"C{final_row}"].font = Font(bold=True)
+            ws[f"E{final_row}"] = "TOTAL"
+            ws[f"E{final_row}"].font = Font(bold=True)
             total = 0
             for row in ws.iter_rows(min_row=2, max_row=final_row - 1, min_col=6, max_col=6):
                 for cell in row:
                     if isinstance(cell.value, (int, float)):
                         total += cell.value
 
-            ws[f"F{final_row}"] = total
-            ws[f"F{final_row}"].font = Font(bold=True)
+            ws[f"G{final_row}"] = total
+            ws[f"G{final_row}"].font = Font(bold=True)
             current_week_start += timedelta(days=7)
 
     # Decide output format
@@ -266,6 +266,7 @@ def export_sales(request, period):
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         wb.save(response)
         return response
+
 
 
 
