@@ -9,13 +9,14 @@ from .models import InventoryList, SalesRecord
 from .forms import SalesRecordForm
 from django.db.models import Sum, F
 from django.utils.timezone import now
-from datetime import timedelta
 from django.http import HttpResponse
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import cm
+from io import BytesIO
 from openpyxl.styles import Font
-from django.utils.timezone import now
 from datetime import timedelta
-from .models import SalesRecord
 
 
 
@@ -108,18 +109,17 @@ class SalesListView(LoginRequiredMixin, ListView):
 
 def export_sales(request, period):
     today = now().date()
+    format_type = request.GET.get('format', 'excel')  # default is Excel
     wb = Workbook()
 
     def add_total_row(ws, start_row):
-        """Adds bold total row at the bottom of the sheet"""
         total_row = ws.max_row + 1
         ws[f"B{total_row}"] = "TOTAL"
         ws[f"B{total_row}"].font = Font(bold=True)
-        # If 'Total' is in column E
-
         ws[f"E{total_row}"] = f"=SUM(E{start_row}:E{total_row-1})"
         ws[f"E{total_row}"].font = Font(bold=True)
 
+    # Excel sheet generation logic (same as before)
     if period == 'day':
         ws = wb.active
         ws.title = today.strftime("%Y-%m-%d")
@@ -137,142 +137,103 @@ def export_sales(request, period):
             ])
         add_total_row(ws, start_row)
 
-
     elif period == 'week':
         ws = wb.active
         ws.title = f"Week of {today.strftime('%Y-%m-%d')}"
-        ws.append(["Date", "ID No." , "Item", "Quantity Sold", "Price", "Total"])
-
+        ws.append(["Date", "ID No.", "Item", "Quantity Sold", "Price", "Total"])
         start_row = 2
         start_of_week = today - timedelta(days=today.weekday())
-
         for i in range(7):
             day = start_of_week + timedelta(days=i)
             day_sales = SalesRecord.objects.filter(user=request.user, sale_date__date=day)
             if not day_sales.exists():
                 continue
-
-            # Day header
             ws.append([day.strftime("%A, %Y-%m-%d")])
             day_start_row = ws.max_row + 1
-
             for sale in day_sales:
                 ws.append([
-
-                    "",  # Empty date cell for alignment
-                    sale.sale_id,
-                    sale.item.name,
-                    sale.quantity_sold,
-                    float(sale.item.price),
+                    "", sale.sale_id, sale.item.name,
+                    sale.quantity_sold, float(sale.item.price),
                     float(sale.total_sale_amount())
-
                 ])
-
-            # Subtotal for the day
-
             subtotal_row = ws.max_row + 1
-
             ws[f"C{subtotal_row}"] = "Subtotal"
-
             ws[f"C{subtotal_row}"].font = Font(bold=True)
-
             ws[f"F{subtotal_row}"] = f"=SUM(F{day_start_row}:{'F' + str(subtotal_row - 1)})"
-
             ws[f"F{subtotal_row}"].font = Font(bold=True)
-
-        # Grand total
-
         final_row = ws.max_row + 1
-
         ws[f"C{final_row}"] = "TOTAL"
-
         ws[f"C{final_row}"].font = Font(bold=True)
-
         ws[f"F{final_row}"] = f"=SUM(F2:F{final_row - 1})"
-
         ws[f"F{final_row}"].font = Font(bold=True)
 
-
     elif period == 'month':
-
         start_of_month = today.replace(day=1)
-
         first_monday = start_of_month - timedelta(days=start_of_month.weekday())
-
         current_week_start = first_monday
-
         while current_week_start.month <= today.month:
-
             ws = wb.create_sheet(title=f"Week {current_week_start.strftime('%W')}")
-
-            ws.append(["Date", "ID No." , "Item", "Quantity Sold", "Price", "Total"])
-
-            start_row = 2
-
+            ws.append(["Date", "ID No.", "Item", "Quantity Sold", "Price", "Total"])
             for i in range(7):
-
                 day = current_week_start + timedelta(days=i)
-
                 if day.month != today.month:
                     continue
-
                 day_sales = SalesRecord.objects.filter(user=request.user, sale_date__date=day)
-
                 if not day_sales.exists():
                     continue
-
-                # Day header
-
                 ws.append([day.strftime("%A, %Y-%m-%d")])
-
                 day_start_row = ws.max_row + 1
-
                 for sale in day_sales:
                     ws.append([
-
-                        "",  # Empty date cell for alignment
-                        sale.sale_id,
-                        sale.item.name,
-                        sale.quantity_sold,
-                        float(sale.item.price),
+                        "", sale.sale_id, sale.item.name,
+                        sale.quantity_sold, float(sale.item.price),
                         float(sale.total_sale_amount())
-
                     ])
-
-                # Subtotal for the day
-
                 subtotal_row = ws.max_row + 1
-
                 ws[f"C{subtotal_row}"] = "Subtotal"
-
                 ws[f"C{subtotal_row}"].font = Font(bold=True)
-
                 ws[f"F{subtotal_row}"] = f"=SUM(F{day_start_row}:{'F' + str(subtotal_row - 1)})"
-
                 ws[f"F{subtotal_row}"].font = Font(bold=True)
-
-            # Grand total for the week
-
             final_row = ws.max_row + 1
-
             ws[f"C{final_row}"] = "TOTAL"
-
             ws[f"C{final_row}"].font = Font(bold=True)
-
             ws[f"F{final_row}"] = f"=SUM(F2:F{final_row - 1})"
-
             ws[f"F{final_row}"].font = Font(bold=True)
-
             current_week_start += timedelta(days=7)
 
-    # Prepare HTTP response
-    response = HttpResponse(
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
-    filename = f"sales_{period}_{today}.xlsx"
-    response['Content-Disposition'] = f'attachment; filename={filename}'
-    wb.save(response)
-    return response
+    # Decide output format
+    if format_type == 'pdf':
+        response = HttpResponse(content_type='application/pdf')
+        filename = f"sales_{period}_{today}.pdf"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        c = canvas.Canvas(response, pagesize=A4)
+        width, height = A4
+        y = height - 2 * cm
+        for sheet in wb.worksheets:
+            c.setFont("Helvetica-Bold", 14)
+            c.drawString(2 * cm, y, f"Sales Report: {sheet.title}")
+            y -= 1.5 * cm
+            c.setFont("Helvetica", 10)
+            for row in sheet.iter_rows(values_only=True):
+                row_text = " | ".join([str(cell) if cell is not None else "" for cell in row])
+                c.drawString(2 * cm, y, row_text)
+                y -= 0.7 * cm
+                if y < 2 * cm:
+                    c.showPage()
+                    y = height - 2 * cm
+            c.showPage()
+        c.save()
+        return response
+
+    else:
+        response = HttpResponse(
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        filename = f"sales_{period}_{today}.xlsx"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        wb.save(response)
+        return response
+
 
 
 
