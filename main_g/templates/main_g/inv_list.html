@@ -44,7 +44,7 @@
         }
         a:hover {
             background-color: #011638;
-            color: black;
+            color: white;
         }
         .download-btn {
           padding: 12px 20px;
@@ -100,7 +100,6 @@
 <div class="container">
 {% block content %}
     <h1>Inventory List</h1>
-    <a href="/">Back</a>
     <table>
         <thead>
         <tr>
@@ -123,12 +122,13 @@
             {% endfor %}
         {% endif %}
     </table>
-    <a href="create/">Add</a>
+    <a href="/">Back</a>   <a href="create/">Add</a>
 {% endblock %}
 </div>
 </body>
 
 </html>
+
 
 
 
